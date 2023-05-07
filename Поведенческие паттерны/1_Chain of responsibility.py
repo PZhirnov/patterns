@@ -1,7 +1,4 @@
 import abc
-
-
-# Интерфейс обработчика
 import random
 
 
@@ -16,8 +13,20 @@ class Handler(metaclass=abc.ABCMeta):
         return self.next
 
 
-# Конкретный класс оператора
+class Request:
+    data = [
+        'вопрос по возврату товара',
+        'вопрос по скидке',
+        'вопрос по стоимости товара',
+    ]
+
+    @staticmethod
+    def get_data():
+        return random.choice(__class__.data)
+
+
 class Operator(Handler):
+    # вероятность занятости оператора
     probability = 0.75
 
     def __init__(self, name):
@@ -28,7 +37,30 @@ class Operator(Handler):
             print(f'Оператор {self.name} занят')
             super().handle(request)
         else:
-            print(f'Оператор {self.name}')
+            print(f'Оператор {self.name} обрабатывает: "{request.get_data()}"')
 
     def is_busy(self):
-        return random.Random() < __class__.probability
+        return random.random() < __class__.probability
+
+
+class BusyHandler(Handler):
+    def __init__(self):
+        self.request = None
+
+    def handle(self, request):
+        if (self.request == request):
+            print('Все операторы заняты, пожалуйста подождите!')
+        else:
+            self.request = request
+            super().handle(request)
+
+
+handler = BusyHandler()
+
+handler.link(Operator('#1')).\
+    link(Operator('#2')).\
+    link(Operator('#3')).\
+    link(handler)
+
+for i in range(3):
+    handler.handle(Request())
